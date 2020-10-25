@@ -24,13 +24,13 @@ setup_twitter_oauth(api_key, api_secret, access_token, access_secret)
 ```
 
 ```{r}
-# tweets1 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-17", until = "2020-10-18")
-# tweets2 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-18", until = "2020-10-19")
-# tweets3 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-19", until = "2020-10-20")
-# tweets4 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-20", until = "2020-10-21")
-# tweets5 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-21", until = "2020-10-22")
-# tweets6 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-22", until = "2020-10-23")
-# tweets7 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-23", until = "2020-10-24")
+tweets1 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-17", until = "2020-10-18")
+tweets2 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-18", until = "2020-10-19")
+tweets3 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-19", until = "2020-10-20")
+tweets4 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-20", until = "2020-10-21")
+tweets5 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-21", until = "2020-10-22")
+tweets6 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-22", until = "2020-10-23")
+tweets7 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-23", until = "2020-10-24")
 tweets<- rbind(tweets1, tweets2, tweets3, tweets4, tweets5, tweets6, tweets7)
 tweetsdf <- twListToDF(tweets)
 tweety <- tweetsdf %>%
