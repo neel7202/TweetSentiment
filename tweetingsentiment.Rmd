@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+# Loading Necessary Packages
 library(twitteR)
 library(base64enc)
 library(tidyverse)
@@ -15,6 +16,8 @@ library(plotly)
 library(lubridate)
 library(zoo)
 library(ggfortify)
+
+# Twitter App My Information
 api_key <- 'OlqYNP0a9wCFQXNCn0N5u1o6O'
 api_secret <- 'jmegBcAgKNdfMe2NTuVM8tL3IB2tX5M6CV7pof3yUI95yCPCzW'
 access_token <- '1282525886089232384-JvVvjfeFoMwEEAnxGRXhpGP0YSRgdw'
@@ -23,29 +26,32 @@ access_secret <- 'sdDpYeuVYB5dj1oKJW0X7NkW6tkyHBlHueP7ruXQKZZdg'
 
 ## R Markdown
 ```{r}
+# Connects R to my Twitter App
 setup_twitter_oauth(api_key, api_secret, access_token, access_secret)
 ```
 
 ```{r}
-tweets1 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-17", until = "2020-10-18", resultType = 'popular')
-tweets2 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-18", until = "2020-10-19", resultType = 'popular')
-tweets3 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-19", until = "2020-10-20", resultType = 'popular')
-tweets4 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-20", until = "2020-10-21", resultType = 'popular')
-tweets5 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-21", until = "2020-10-22", resultType = 'popular')
-tweets6 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-22", until = "2020-10-23", resultType = 'popular')
-tweets7 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-23", until = "2020-10-24", resultType = 'popular')
-tweets<- rbind(tweets1, tweets2, tweets3, tweets4, tweets5, tweets6, tweets7)
-tweetsdf <- twListToDF(tweets)
+# Searches Twitter by day for the most popular tweets including the key-word "anxiety"
+tweets1 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-17", until = "2020-10-18", resultType = 'popular') # Searches Oct 17
+tweets2 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-18", until = "2020-10-19", resultType = 'popular') # Searches Oct 18
+tweets3 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-19", until = "2020-10-20", resultType = 'popular') # Searches Oct 19
+tweets4 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-20", until = "2020-10-21", resultType = 'popular') # Searches Oct 20
+tweets5 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-21", until = "2020-10-22", resultType = 'popular') # Searches Oct 21
+tweets6 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-22", until = "2020-10-23", resultType = 'popular') # Searches Oct 22
+tweets7 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-23", until = "2020-10-24", resultType = 'popular') # Searches Oct 23
+tweets<- rbind(tweets1, tweets2, tweets3, tweets4, tweets5, tweets6, tweets7)        # Combines individual days data into one variable with each date corresponding to a row
+tweetsdf <- twListToDF(tweets)     ## Converts tweets to df and stores in new variable tweetsdf
 
-hourlyData <- tweetsdf %>%
-  mutate(hour_posted = floor_date(created, "hour"))%>%
-  group_by(hour_posted)%>%
-  summarize(avgAnxioustweets = sum(retweetCount))
-hourlyData
+hourlyData <- tweetsdf %>%         ## New data frame created that is a copy of tweetsdf
+  mutate(hour_posted = floor_date(created, "hour"))%>%                 ## Rounds each created time down to the hour
+  group_by(hour_posted)%>%                                             ## Groups by hour
+  summarize(avgAnxioustweets = sum(retweetCount))                      ## Gets number of anxious retweets for each group
 
-hourly_ts<- zoo( x = hourlyData$avgAnxioustweets, order.by = hourlyData$hour_posted, frequency = 24)
-hourly_ts
+anxiousRetweets<- zoo(x = hourlyData$avgAnxioustweets, order.by = hourlyData$hour_posted, frequency = 24)  ## Converts to zoo object
 
-autoplot.zoo(hourly_ts, xlab = "Date", ylab = "anxiousTweets")
+p <- fortify.zoo(anxiousRetweets)%>%     ## Allows us to graph as a ggplot object
+ggplot(aes(x = Index, y = anxiousRetweets)) + geom_line() + xlab("Date") + ggtitle("Average Anxiety Related Retweets by Day") ## Graphs Index against anxious Retweets and renames x axis and title
+
+ggplotly(p) # Converts to plotly object
 ```
 
