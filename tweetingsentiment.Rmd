@@ -12,6 +12,9 @@ library(base64enc)
 library(tidyverse)
 library(dplyr)
 library(plotly)
+library(lubridate)
+library(zoo)
+library(ggfortify)
 api_key <- 'OlqYNP0a9wCFQXNCn0N5u1o6O'
 api_secret <- 'jmegBcAgKNdfMe2NTuVM8tL3IB2tX5M6CV7pof3yUI95yCPCzW'
 access_token <- '1282525886089232384-JvVvjfeFoMwEEAnxGRXhpGP0YSRgdw'
@@ -24,20 +27,25 @@ setup_twitter_oauth(api_key, api_secret, access_token, access_secret)
 ```
 
 ```{r}
-tweets1 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-17", until = "2020-10-18")
-tweets2 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-18", until = "2020-10-19")
-tweets3 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-19", until = "2020-10-20")
-tweets4 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-20", until = "2020-10-21")
-tweets5 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-21", until = "2020-10-22")
-tweets6 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-22", until = "2020-10-23")
-tweets7 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-23", until = "2020-10-24")
+tweets1 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-17", until = "2020-10-18", resultType = 'popular')
+tweets2 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-18", until = "2020-10-19", resultType = 'popular')
+tweets3 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-19", until = "2020-10-20", resultType = 'popular')
+tweets4 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-20", until = "2020-10-21", resultType = 'popular')
+tweets5 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-21", until = "2020-10-22", resultType = 'popular')
+tweets6 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-22", until = "2020-10-23", resultType = 'popular')
+tweets7 <- searchTwitter('anxiety', n = 100, lang = 'en', since = "2020-10-23", until = "2020-10-24", resultType = 'popular')
 tweets<- rbind(tweets1, tweets2, tweets3, tweets4, tweets5, tweets6, tweets7)
 tweetsdf <- twListToDF(tweets)
-tweety <- tweetsdf %>%
-  group_by(created)%>%
-  summarize(avgAnxioustweets = sum(retweetCount)/n())
-p1 <- ggplot(tweety, aes(x = created, y = avgAnxioustweets, color = created)) + geom_point() + xlab("Date")+ylab("Average # of  Anxious Retweets")
-ggplotly(p1)
 
+hourlyData <- tweetsdf %>%
+  mutate(hour_posted = floor_date(created, "hour"))%>%
+  group_by(hour_posted)%>%
+  summarize(avgAnxioustweets = sum(retweetCount))
+hourlyData
+
+hourly_ts<- zoo( x = hourlyData$avgAnxioustweets, order.by = hourlyData$hour_posted, frequency = 24)
+hourly_ts
+
+autoplot.zoo(hourly_ts, xlab = "Date", ylab = "anxiousTweets")
 ```
 
